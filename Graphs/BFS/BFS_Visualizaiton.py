@@ -1,10 +1,10 @@
-import ast
 import matplotlib.pyplot as plt
 from  matplotlib.pyplot import figure, draw, pause
 import matplotlib
 import numpy as np
+
 import time
-import sys
+
 
 class Node:
 
@@ -33,7 +33,6 @@ class Queue:
 def linkNodeToChildren(node, numRows, numCols, input_map):
     '''
     Link nodes to node in map with the proper level
-    :return:
     '''
 
     new_level = node.level + 1
@@ -47,12 +46,27 @@ def linkNodeToChildren(node, numRows, numCols, input_map):
 
 
 def linkNodeHelper( x, y, numRows, numCols, input_map, new_level,node, attrname):
+    '''
+    Function checks:
+     1. if (x,y) are within boundaries
+     2. if (x,y) corresponds to an unexplored location (1) or the target (9)
+     3. creates the side node
+     4. links the current node to the side node
+    :param x: int representing x coordinate to check
+    :param y: int representing t coordinate to check
+    :param numRows: int of # of rows
+    :param numCols: int of # of cols
+    :param input_map: 2D array containing 1s, -1s, 0s and the target 9.
+    :param new_level: Level of the side node
+    :param node: current node for which we are linking the children
+    :param attrname: string representing the 'side' attribute e.g. 'left'
 
-    # link to top if it is within boundaries and if top is 1
+    '''
+
     if 0 <= x and x < numRows \
             and 0 <= y and y < numCols \
-            and (input_map[x][y] == 1 or input_map[x][y] == 9):   # check rows boundary and top equal to 1
-        # Create top node
+            and (input_map[x][y] == 1 or input_map[x][y] == 9):
+        # Create side node
         side_node = Node([x,y],input_map[x][y])
         side_node.level = new_level
         side_node.parent = node
@@ -78,7 +92,7 @@ def create_img(img, numRows, numCols, input_map, found_path_flag=False):
 
     return img
 
-def paint_path(node,img, img_artist, fg):
+def paint_path(node,img, img_artist, fg, sleep_rate = 0.1):
 
     if node:
 
@@ -87,15 +101,16 @@ def paint_path(node,img, img_artist, fg):
         img_artist.set_data(img)
         fg.canvas.draw()
         fg.canvas.flush_events()
+        time.sleep(sleep_rate)
 
         paint_path(node.parent,img, img_artist, fg)
 
-    else:
-        plt.pause(2)
 
 
 
-def apply_BFS(numRows, numCols, input_map):
+
+
+def apply_BFS(numRows, numCols, input_map, sleep_rate = 0.1):
 
     # Initialize root node
     data = input_map[0][0]
@@ -109,17 +124,16 @@ def apply_BFS(numRows, numCols, input_map):
     # Initialize image
     img = np.zeros((numRows,numCols,3))
     img = create_img(img, numRows, numCols, input_map)
-
+    # Image settings
     matplotlib.use('TkAgg')
     fg = figure()
     axs = plt.gca()
     img_artist = axs.imshow(img)
     plt.show(block=False)
     plt.title('Applying BFS on a '+str(numRows)+'x'+str(numCols)+' Matrix')
-    plt.xlabel('Current Level Depth: 0 ')
     background = fg.canvas.copy_from_bbox(axs.bbox)
 
-    plt.pause(1)
+    plt.pause(1) # pause() takes too much time within loop
 
     while queue.queue:
         # Get node
@@ -127,13 +141,13 @@ def apply_BFS(numRows, numCols, input_map):
 
         if node.data == 9:
             plt.xlabel('Target Level Depth: '+ str(node.level))
-            paint_path(node,img, img_artist, fg)
+            paint_path(node,img, img_artist, fg, sleep_rate)
             return node.level
 
-        # link to  children
+        # link current node to  children not yet explored
         linkNodeToChildren(node, numRows, numCols, input_map) # if not node.linked: l
 
-        # if children at top/right/... then add to queue
+        # if children at top/right/bottom/left, then add to queue
         if node.top:
             queue.push(node.top)
         if node.right:
@@ -143,57 +157,66 @@ def apply_BFS(numRows, numCols, input_map):
         if node.left:
             queue.push(node.left)
 
+        # Mark current node as visited
         x,y = node.coordinates
         input_map[x][y] = -1
-
+        # Mark visited node on image
         img[x][y] = [234/250,242/250,128/250]
         img_artist.set_data(img)
-        #plt.xlabel('Current Level Depth: '+ str(node.level))
-        fg.canvas.restore_region(background)
-        axs.set_xlabel('Current Level Depth: '+ str(node.level))
+        # fg.canvas.restore_region(background)
         axs.draw_artist(img_artist)
         fg.canvas.blit(axs.bbox)
 
 
+        #plt.pause(0.1)
+        time.sleep(sleep_rate)
+
+    plt.close(fg)
+    plt.clf()
+    fg.clf()
     return -1
 
 
-def get_distance(numRows, numCols, input_map):
+def get_distance(numRows, numCols, input_map, sleep_time = 0.1):
+    '''
 
-    # 1. Create graph of nodes containing 1 until 9 is found, else return 9.
-    min_distance = apply_BFS(numRows, numCols, input_map)
+    :param numRows: int of # of rows
+    :param numCols: int of # of cols
+    :param input_map: 2D array containing 1s, -1s, 0s and the target 9.
+    :return: minimum distance to get from top left (origin) to target 9, otherwise returns -1
+    '''
+
+    min_distance = apply_BFS(numRows, numCols, input_map, sleep_time)
 
     return min_distance
 
 def get_map(m,n):
-
+    ''' builds random map of mxn with at least one route from origin to target'''
     X = np.random.rand(m,n)
-
     X[X>=0.5] = 1
     X[X< 0.5] = 0
     X[0, :] = np.ones(n)
     X[:,-1] = np.ones(m)
     X[-1,-1] = 9
-
     return X
 
 if __name__ == '__main__':
 
     # 3x3 case
-    numRows = 3 #int(input())
-    numCols = 3 #int(input())
-    input_map = [[1,0,0], [1,0,0], [1,9,0]]#ast.literal_eval(input())
-    print(get_distance(numRows, numCols, input_map))
+    numRows = 3
+    numCols = 3
+    input_map = [[1,0,0], [1,0,9], [1,1,1]]
+    print(get_distance(numRows, numCols, input_map, 1))
 
-    # 5x5
-    numRows = 5 #int(input())
-    numCols = 5 #int(input())
+    # 5x5 case
+    numRows = 5
+    numCols = 5
     input_map = [[1,0,0,1,9],
                  [1,0,0,1,0],
                  [1,1,0,1,1],
                  [1,1,0,0,1],
                  [1,1,1,1,1]]
-    print(get_distance(numRows, numCols, input_map))
+    print(get_distance(numRows, numCols, input_map, 0.3))
 
     # 8x8
     numRows = 8 #int(input())
@@ -207,12 +230,13 @@ if __name__ == '__main__':
                  [1, 1, 0, 1, 1, 1, 1, 1],
                  [1, 1, 1, 1, 0, 0, 0, 9]]
 
-    print(get_distance(numRows, numCols, input_map))
+    print(get_distance(numRows, numCols, input_map, 0.1))
 
 
     # mxn
-    m = 50
-    n = 50
+    m = 20
+    n = 20
     X = get_map(m,n)
 
-    print(get_distance(m, n, X))
+    print(get_distance(m, n, X, 0.005))
+    plt.show()
