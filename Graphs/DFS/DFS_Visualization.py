@@ -82,16 +82,16 @@ def paint_path(node,img, img_artist, fg, sleep_rate = 0.1):
         paint_path(node.parent,img, img_artist, fg)
 
 
-def apply_BFS(numRows, numCols, input_map, sleep_rate = 0.1):
+def visualize_DFS(numRows, numCols, input_map, sleep_rate = 0.1):
 
     # Initialize root node
     data = input_map[0][0]
     root = Node([0,0], data)
     root.level = 0
 
-    # Initialize queue
-    queue = Queue()
-    queue.push(root)
+    # Initialize stack
+    stack = []
+    stack.append(root)
 
     # Initialize image
     img = np.zeros((numRows,numCols,3))
@@ -102,13 +102,13 @@ def apply_BFS(numRows, numCols, input_map, sleep_rate = 0.1):
     axs = plt.gca()
     img_artist = axs.imshow(img)
     plt.show(block=False)
-    plt.title('Applying BFS on a '+str(numRows)+'x'+str(numCols)+' Matrix')
+    plt.title('Applying DFS on a '+str(numRows)+'x'+str(numCols)+' Matrix')
 
     plt.pause(1) # pause() takes too much time within loop
 
-    while queue.queue:
+    while stack:
         # Get node
-        node = queue.dequeue()
+        node = stack.pop()
 
         if node.data == 9:
             plt.xlabel('Target Level Depth: '+ str(node.level))
@@ -120,13 +120,13 @@ def apply_BFS(numRows, numCols, input_map, sleep_rate = 0.1):
 
         # if children at top/right/bottom/left, then add to queue
         if node.top:
-            queue.push(node.top)
+            stack.append(node.top)
         if node.right:
-            queue.push(node.right)
+            stack.append(node.right)
         if node.bottom:
-            queue.push(node.bottom)
+            stack.append(node.bottom)
         if node.left:
-            queue.push(node.left)
+            stack.append(node.left)
 
         # Mark current node as visited
         x,y = node.coordinates
@@ -146,18 +146,6 @@ def apply_BFS(numRows, numCols, input_map, sleep_rate = 0.1):
     fg.clf()
     return -1
 
-
-def get_distance(numRows, numCols, input_map, sleep_time = 0.1):
-    '''
-
-    :param numRows: int of # of rows
-    :param numCols: int of # of cols
-    :param input_map: 2D array containing 1s, -1s, 0s and the target 9.
-    :return: minimum distance to get from top left (origin) to target 9, otherwise returns -1
-    '''
-    min_distance = apply_BFS(numRows, numCols, input_map, sleep_time)
-    return min_distance
-
 def get_map(m,n):
     ''' builds random map of mxn with at least one route from origin to target'''
     X = np.random.rand(m,n)
@@ -173,36 +161,36 @@ if __name__ == '__main__':
     # 3x3 case
     numRows = 3
     numCols = 3
-    input_map = [[1,0,0], [1,0,9], [1,1,1]]
-    print(get_distance(numRows, numCols, input_map, 1))
+    input_map = [[1,1,1], [1,0,9], [1,1,1]]
+    print(visualize_DFS(numRows, numCols, input_map, 1))
 
     # 5x5 case
     numRows = 5
     numCols = 5
     input_map = [[1,0,0,1,9],
                  [1,0,0,1,0],
-                 [1,1,0,1,1],
+                 [1,1,1,1,1],
                  [1,1,0,0,1],
                  [1,1,1,1,1]]
-    print(get_distance(numRows, numCols, input_map, 0.3))
+    print(visualize_DFS(numRows, numCols, input_map, 0.3))
 
     # 8x8 case
     numRows = 8 #int(input())
     numCols = 8 #int(input())
     input_map = [[1, 1, 1, 1, 1, 1, 0, 0],
-                 [1, 0, 0, 1, 0, 1, 1, 0],
+                 [1, 0, 0, 9, 0, 1, 1, 0],
                  [1, 0, 0, 1, 0, 0, 1, 0],
                  [1, 0, 0, 1, 1, 1, 1, 0],
                  [1, 0, 0, 1, 0, 0, 1, 0],
                  [1, 1, 1, 1, 0, 1, 1, 0],
                  [1, 1, 0, 1, 1, 1, 1, 1],
-                 [1, 1, 1, 1, 0, 0, 0, 9]]
-    print(get_distance(numRows, numCols, input_map, 0.1))
+                 [1, 1, 1, 1, 0, 0, 0, 1]]
+    print(visualize_DFS(numRows, numCols, input_map, 0.1))
 
 
     # mxn case
     m = 20
     n = 20
     X = get_map(m,n)
-    print(get_distance(m, n, X, 0.005))
+    print(visualize_DFS(m, n, X, 0.005))
     plt.show()
