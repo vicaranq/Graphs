@@ -124,14 +124,18 @@ def get_zones(numRows, numCols, input_map, sleep_rate = 0.1):
     prev_node_in_zone = False
     num_zones = 0
     visited_number_of_nodes = 0
+
+    # Hash table for coordinates that has been in queue
+    coordinates_dict = {}
     while p_queue.getQueue():
         # print(p_queue.getQueue())
 
         # # Check if we have visited all priority nodes in teh graph
-        # if visited_number_of_nodes + len(p_queue.queue) >= numRows*numCols:
-        #     print(p_queue.getQueue())
-        #     print(visited_number_of_nodes)
-        #     break
+        if visited_number_of_nodes + len(p_queue.queue) >= numRows*numCols:
+            # print("Done searching: \nQueue is: ")
+            # print(p_queue.getQueue())
+            # print("visited_number_of_nodes "+str(visited_number_of_nodes))
+            break
 
         # Get node
         node = p_queue.dequeue()
@@ -148,14 +152,18 @@ def get_zones(numRows, numCols, input_map, sleep_rate = 0.1):
         # link current node to  children not yet explored
         linkNodeToChildren(node, numRows, numCols, input_map)
 
-        # if children at top/right/bottom/left, then add to queue
-        if node.top:
+        # if children at top/right/bottom/left and it has not been in the queue, then add to queue
+        if node.top and str(node.top.coordinates) not in coordinates_dict:
+            coordinates_dict[str(node.top.coordinates)] = True
             p_queue.push(node.top, node.top.data)
-        if node.right:
+        if node.right and str(node.right.coordinates) not in coordinates_dict:
+            coordinates_dict[str(node.right.coordinates)] = True
             p_queue.push(node.right, node.right.data)
-        if node.bottom:
+        if node.bottom and str(node.bottom.coordinates) not in coordinates_dict:
+            coordinates_dict[str(node.bottom.coordinates)] = True
             p_queue.push(node.bottom, node.bottom.data)
-        if node.left:
+        if node.left and str(node.left.coordinates) not in coordinates_dict:
+            coordinates_dict[str(node.left.coordinates)] = True
             p_queue.push(node.left, node.left.data)
 
         # Mark zone node
@@ -165,6 +173,10 @@ def get_zones(numRows, numCols, input_map, sleep_rate = 0.1):
         if node.data == 1:
             # Mark visited node on image corresponding to a zone
             img[x][y] = [234/250,242/250,128/250]
+            img_artist.set_data(img)
+        else:
+            # Mark visited node on image corresponding to a point out of the zones
+            img[x][y] = [100/250,100/250,100/250]
             img_artist.set_data(img)
         # fg.canvas.restore_region(background)
         axs.draw_artist(img_artist)
@@ -191,10 +203,10 @@ def get_map(m,n):
 if __name__ == '__main__':
 
     # 3x3 case  #2 zones
-    numRows = 3
-    numCols = 3
-    input_map = [[1,0,0], [1,0,1], [1,0,1]]
-    print(get_zones(numRows, numCols, input_map, 1))
+    # numRows = 3
+    # numCols = 3
+    # input_map = [[1,0,0], [1,0,1], [1,0,1]]
+    # print(get_zones(numRows, numCols, input_map, 1))
 
     # # 5x5 case   # 4
     # numRows = 5
@@ -207,17 +219,17 @@ if __name__ == '__main__':
     # print(get_zones(numRows, numCols, input_map, 0.3))
 
     # # 8x8 case
-    # numRows = 8 #int(input())
-    # numCols = 8 #int(input())
-    # input_map = [[1, 1, 1, 1, 1, 1, 0, 0],
-    #              [1, 1, 0, 1, 1, 1, 0, 0],
-    #              [0, 0, 0, 0, 0, 0, 1, 0],
-    #              [0, 0, 0, 1, 1, 1, 1, 0],
-    #              [0, 0, 0, 0, 0, 0, 0, 0],
-    #              [0, 0, 0, 0, 0, 1, 1, 0],
-    #              [1, 1, 0, 0, 1, 1, 1, 1],
-    #              [1, 1, 1, 1, 0, 1, 1, 1]]
-    # print(get_distance(numRows, numCols, input_map, 0.1))
+    numRows = 8 #int(input())
+    numCols = 8 #int(input())
+    input_map = [[1, 1, 1, 1, 1, 1, 0, 0],
+                 [1, 1, 0, 1, 1, 1, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 1, 0],
+                 [0, 0, 0, 1, 1, 1, 1, 0],
+                 [0, 0, 0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 1, 1, 0],
+                 [1, 1, 0, 0, 1, 1, 1, 1],
+                 [1, 1, 1, 1, 0, 1, 1, 1]]
+    print(get_zones(numRows, numCols, input_map, 0.1))
     #
     #
     # # mxn case
