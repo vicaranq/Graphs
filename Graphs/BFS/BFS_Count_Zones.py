@@ -100,17 +100,10 @@ def get_zones(numRows, numCols, input_map, sleep_rate = 0.1):
     matplotlib.use('TkAgg')
     fg = figure()
     axs = plt.gca()
-    # axs.set(xlim=(-0.5, numCols-0.5), ylim=(-0.5, numRows-0.5))
     axs.set_xticks(range(numCols))
     axs.set_yticks(range(numRows))
+    axs.xaxis.tick_top()
 
-    # xdata_grid = np.arange(0.5,numCols)
-    # ydata_grid = np.arange(0.5,numRows)
-    # grid(color='y', linestyle='-') #, xdata = xdata_grid, ydata=ydata_grid)
-    # #axs.axhline([x for x in xdata_grid], linestyle='--', color='k') # horizontal lines
-    #
-    # axs.set_yticks(xdata_grid, minor=True)
-    # axs.set_xticks(xdata_grid, minor=True)
 
 
     img_artist = axs.imshow(img)
@@ -128,13 +121,10 @@ def get_zones(numRows, numCols, input_map, sleep_rate = 0.1):
     # Hash table for coordinates that has been in queue
     coordinates_dict = {}
     while p_queue.getQueue():
-        # print(p_queue.getQueue())
 
-        # # Check if we have visited all priority nodes in teh graph
+        # # Check if remaining nodes to check are all in the non-priority queue
         if visited_number_of_nodes + len(p_queue.queue) >= numRows*numCols:
-            # print("Done searching: \nQueue is: ")
-            # print(p_queue.getQueue())
-            # print("visited_number_of_nodes "+str(visited_number_of_nodes))
+            print(str(numRows)+"x"+str(numCols)+" Finished! Note: Remaining Nodes Do Not Belong to a Zone")
             break
 
         # Get node
@@ -152,7 +142,7 @@ def get_zones(numRows, numCols, input_map, sleep_rate = 0.1):
         # link current node to  children not yet explored
         linkNodeToChildren(node, numRows, numCols, input_map)
 
-        # if children at top/right/bottom/left and it has not been in the queue, then add to queue
+        # if children at top/right/bottom/left and it is not in the queue, then add to queue
         if node.top and str(node.top.coordinates) not in coordinates_dict:
             coordinates_dict[str(node.top.coordinates)] = True
             p_queue.push(node.top, node.top.data)
@@ -178,16 +168,15 @@ def get_zones(numRows, numCols, input_map, sleep_rate = 0.1):
             # Mark visited node on image corresponding to a point out of the zones
             img[x][y] = [100/250,100/250,100/250]
             img_artist.set_data(img)
-        # fg.canvas.restore_region(background)
+
+        axs.set_xlabel('Number of Zones:'+str(num_zones))
         axs.draw_artist(img_artist)
-        fg.canvas.blit(axs.bbox)
+        # fg.canvas.blit(axs.bbox)
+        fg.canvas.draw()
 
         #plt.pause(0.1)
         time.sleep(sleep_rate)
-    plt.xlabel('Number of Zones: '+ str(num_zones))
-    # plt.close(fg)
-    # plt.clf()
-    # fg.clf()
+
     return num_zones
 
 def get_map(m,n):
@@ -195,46 +184,45 @@ def get_map(m,n):
     X = np.random.rand(m,n)
     X[X>=0.5] = 1
     X[X< 0.5] = 0
-    X[0, :] = np.ones(n)
-    X[:,-1] = np.ones(m)
-    X[-1,-1] = 9
     return X
 
 if __name__ == '__main__':
 
     # 3x3 case  #2 zones
-    # numRows = 3
-    # numCols = 3
-    # input_map = [[1,0,0], [1,0,1], [1,0,1]]
-    # print(get_zones(numRows, numCols, input_map, 1))
+    numRows = 3
+    numCols = 3
+    input_map = [[1,0,0], [1,0,1], [0,0,1]]
+    print('Number of Zones Found:' + str(get_zones(numRows, numCols, input_map, 0.8)))
 
-    # # 5x5 case   # 4
-    # numRows = 5
-    # numCols = 5
-    # input_map = [[1,0,0,1,1],
-    #              [1,0,0,1,0],
-    #              [0,1,1,0,0],
-    #              [0,0,0,0,0],
-    #              [1,1,1,1,0]]
-    # print(get_zones(numRows, numCols, input_map, 0.3))
+    # 5x5 case   # 4
+    numRows = 5
+    numCols = 5
+    input_map = [[0,0,0,0,0],
+                 [0,1,0,1,0],
+                 [0,1,0,1,0],
+                 [0,0,0,0,0],
+                 [0,1,1,1,0]]
+    print('Number of Zones Found:' + str(get_zones(numRows, numCols, input_map, 0.3)))
 
-    # # 8x8 case
+    # 8x8 case
     numRows = 8 #int(input())
     numCols = 8 #int(input())
-    input_map = [[1, 1, 1, 1, 1, 1, 0, 0],
-                 [1, 1, 0, 1, 1, 1, 0, 0],
-                 [0, 0, 0, 0, 0, 0, 1, 0],
-                 [0, 0, 0, 1, 1, 1, 1, 0],
+    input_map = [[1, 1, 1, 1, 1, 1, 1, 1],
+                 [1, 1, 1, 1, 1, 1, 1, 1],
+                 [1, 0, 0, 0, 0, 0, 0, 1],
+                 [0, 0, 1, 0, 0, 1, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0],
-                 [0, 0, 0, 0, 0, 1, 1, 0],
-                 [1, 1, 0, 0, 1, 1, 1, 1],
-                 [1, 1, 1, 1, 0, 1, 1, 1]]
-    print(get_zones(numRows, numCols, input_map, 0.1))
-    #
-    #
-    # # mxn case
-    # m = 20
-    # n = 20
-    # X = get_map(m,n)
-    # print(get_distance(m, n, X, 0.005))
+                 [0, 0, 0, 1, 1, 0, 1, 0],
+                 [0, 1, 0, 0, 0, 0, 1, 0],
+                 [0, 1, 1, 1, 1, 1, 1, 0]]
+    print('Number of Zones Found:' + str(get_zones(numRows, numCols, input_map, 0.1)))
+
+
+    # mxn case
+    m = 20
+    n = 20
+    X = get_map(m,n)
+    print('Number of Zones Found:' + str(get_zones(m, n, X, 0.005)))
+
+
     plt.show()
