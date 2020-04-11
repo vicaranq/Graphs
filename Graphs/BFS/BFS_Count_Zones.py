@@ -104,16 +104,13 @@ def get_zones(numRows, numCols, input_map, sleep_rate = 0.1):
     axs.set_yticks(range(numRows))
     axs.xaxis.tick_top()
 
-
-
     img_artist = axs.imshow(img)
     plt.show(block=False)
     plt.title('Applying BFS on a '+str(numRows)+'x'+str(numCols)+' Matrix')
 
-
     plt.pause(1) # pause() takes too much time within loop
 
-    # Zone flag
+    # Initialize Variables
     prev_node_in_zone = False
     num_zones = 0
     visited_number_of_nodes = 0
@@ -192,37 +189,37 @@ if __name__ == '__main__':
     numRows = 3
     numCols = 3
     input_map = [[1,0,0], [1,0,1], [0,0,1]]
-    print('Number of Zones Found:' + str(get_zones(numRows, numCols, input_map, 0.8)))
+    print('Number of Zones Found:' + str(get_zones(numRows, numCols, input_map, 0.5)))
 
-    # 5x5 case   # 4
-    numRows = 5
-    numCols = 5
-    input_map = [[0,0,0,0,0],
-                 [0,1,0,1,0],
-                 [0,1,0,1,0],
-                 [0,0,0,0,0],
-                 [0,1,1,1,0]]
-    print('Number of Zones Found:' + str(get_zones(numRows, numCols, input_map, 0.3)))
-
-    # 8x8 case
-    numRows = 8 #int(input())
-    numCols = 8 #int(input())
-    input_map = [[1, 1, 1, 1, 1, 1, 1, 1],
-                 [1, 1, 1, 1, 1, 1, 1, 1],
-                 [1, 0, 0, 0, 0, 0, 0, 1],
-                 [0, 0, 1, 0, 0, 1, 0, 0],
-                 [0, 0, 0, 0, 0, 0, 0, 0],
-                 [0, 0, 0, 1, 1, 0, 1, 0],
-                 [0, 1, 0, 0, 0, 0, 1, 0],
-                 [0, 1, 1, 1, 1, 1, 1, 0]]
-    print('Number of Zones Found:' + str(get_zones(numRows, numCols, input_map, 0.1)))
-
-
-    # mxn case
-    m = 20
-    n = 20
-    X = get_map(m,n)
-    print('Number of Zones Found:' + str(get_zones(m, n, X, 0.005)))
+    # # 5x5 case   # 4
+    # numRows = 5
+    # numCols = 5
+    # input_map = [[0,0,0,0,0],
+    #              [0,1,0,1,0],
+    #              [0,1,0,1,0],
+    #              [0,0,0,0,0],
+    #              [0,1,1,1,0]]
+    # print('Number of Zones Found:' + str(get_zones(numRows, numCols, input_map, 0.3)))
+    #
+    # # 8x8 case
+    # numRows = 8 #int(input())
+    # numCols = 8 #int(input())
+    # input_map = [[1, 1, 1, 1, 1, 1, 1, 1],
+    #              [1, 1, 1, 1, 1, 1, 1, 1],
+    #              [1, 0, 0, 0, 0, 0, 0, 1],
+    #              [0, 0, 1, 0, 0, 1, 0, 0],
+    #              [0, 0, 0, 0, 0, 0, 0, 0],
+    #              [0, 0, 0, 1, 1, 0, 1, 0],
+    #              [0, 1, 0, 0, 0, 0, 1, 0],
+    #              [0, 1, 1, 1, 1, 1, 1, 0]]
+    # print('Number of Zones Found:' + str(get_zones(numRows, numCols, input_map, 0.1)))
+    #
+    #
+    # # mxn case
+    # m = 20
+    # n = 20
+    # X = get_map(m,n)
+    # print('Number of Zones Found:' + str(get_zones(m, n, X, 0.005)))
 
 
     plt.show()

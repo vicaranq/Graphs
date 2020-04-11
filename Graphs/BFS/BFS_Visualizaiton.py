@@ -100,6 +100,10 @@ def apply_BFS(numRows, numCols, input_map, sleep_rate = 0.1):
     matplotlib.use('TkAgg')
     fg = figure()
     axs = plt.gca()
+    axs.set_xticks(range(numCols))
+    axs.set_yticks(range(numRows))
+    axs.xaxis.tick_top()
+
     img_artist = axs.imshow(img)
     plt.show(block=False)
     plt.title('Applying BFS on a '+str(numRows)+'x'+str(numCols)+' Matrix')
@@ -111,7 +115,7 @@ def apply_BFS(numRows, numCols, input_map, sleep_rate = 0.1):
         node = queue.dequeue()
 
         if node.data == 9:
-            plt.xlabel('Target Level Depth: '+ str(node.level))
+            plt.xlabel('Distance to Target: '+ str(node.level))
             paint_path(node,img, img_artist, fg, sleep_rate)
             return node.level
 
@@ -135,15 +139,17 @@ def apply_BFS(numRows, numCols, input_map, sleep_rate = 0.1):
         img[x][y] = [234/250,242/250,128/250]
         img_artist.set_data(img)
         # fg.canvas.restore_region(background)
-        axs.draw_artist(img_artist)
-        fg.canvas.blit(axs.bbox)
+        #axs.draw_artist(img_artist)
+        axs.set_xlabel('Distance to Target: '+str(node.level))
+        # fg.canvas.blit(axs.bbox)
+        fg.canvas.draw()
 
         #plt.pause(0.1)
         time.sleep(sleep_rate)
 
-    plt.close(fg)
-    plt.clf()
-    fg.clf()
+    # plt.close(fg)
+    # plt.clf()
+    # fg.clf()
     return -1
 
 
@@ -173,30 +179,30 @@ if __name__ == '__main__':
     # 3x3 case
     numRows = 3
     numCols = 3
-    input_map = [[1,0,0], [1,0,9], [1,1,1]]
-    print(get_distance(numRows, numCols, input_map, 1))
+    input_map = [[1,0,9], [1,0,1], [1,1,1]]
+    print(get_distance(numRows, numCols, input_map, 0.6))
 
-    # 5x5 case
+   #  5x5 case
     numRows = 5
     numCols = 5
-    input_map = [[1,0,0,1,9],
-                 [1,0,0,1,0],
-                 [1,1,0,1,1],
-                 [1,1,0,0,1],
+    input_map = [[1,1,1,1,1],
+                 [1,0,0,0,1],
+                 [1,0,9,1,1],
+                 [1,0,1,0,1],
                  [1,1,1,1,1]]
     print(get_distance(numRows, numCols, input_map, 0.3))
 
     # 8x8 case
-    numRows = 8 #int(input())
-    numCols = 8 #int(input())
+    numRows = 8
+    numCols = 8
     input_map = [[1, 1, 1, 1, 1, 1, 0, 0],
-                 [1, 0, 0, 1, 0, 1, 1, 0],
-                 [1, 0, 0, 1, 0, 0, 1, 0],
-                 [1, 0, 0, 1, 1, 1, 1, 0],
-                 [1, 0, 0, 1, 0, 0, 1, 0],
+                 [1, 0, 0, 0, 0, 1, 0, 0],
+                 [1, 0, 0, 1, 1, 1, 1, 1],
+                 [1, 0, 0, 1, 0, 0, 0, 1],
+                 [1, 0, 0, 1, 0, 0, 1, 1],
                  [1, 1, 1, 1, 0, 1, 1, 0],
-                 [1, 1, 0, 1, 1, 1, 1, 1],
-                 [1, 1, 1, 1, 0, 0, 0, 9]]
+                 [1, 0, 0, 0, 0, 0, 1, 1],
+                 [1, 1, 1, 1, 1, 0, 0, 9]]
     print(get_distance(numRows, numCols, input_map, 0.1))
 
 
@@ -204,5 +210,5 @@ if __name__ == '__main__':
     m = 20
     n = 20
     X = get_map(m,n)
-    print(get_distance(m, n, X, 0.005))
+    print(get_distance(m, n, X, 0.003))
     plt.show()
